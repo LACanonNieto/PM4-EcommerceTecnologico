@@ -1,34 +1,62 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { User, UsersRepository } from './users.repository';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Users } from './entity/users.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    @InjectRepository(Users)
+    private readonly usersRepository: Repository<Users>,
+  ) {}
 
-  getUsers(page: number, limit: number) {
-    return this.usersRepository.getUsers(page, limit);
+  async getUsers(page: number, limit: number) {
+    try {
+      let users = await this.usersRepository.find();
+      const start = (page - 1) * limit;
+      const end = start + limit;
+
+      return (users = users.slice(start, end));
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
-  getUserById(id: number) {
-    const user = this.usersRepository.getById(id);
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+  async createUser(user: CreateUserDto) {
+    const newUser: Users = this.usersRepository.create(user);
+    return await this.usersRepository.save(newUser);
+  }
 
+  async getUserById(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+    }
     const { password, ...safeUser } = user;
     return safeUser;
   }
 
-  createUser(user: CreateUserDto) {
-    return this.usersRepository.CreateUser(user);
+  async updateUser(id: string, data: Partial<Users>) {
+    const user = await this.usersRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${id} no existe`);
+    }
+    const updated = Object.assign(user, data);
+    return await this.usersRepository.save(updated);
   }
 
-  updateUser(id: number, user: Partial<User>) {
-    return this.usersRepository.Update(id, user);
-  }
+  async deleteUser(id: string) {
+    const result = await this.usersRepository.delete(id);
 
-  deleteUser(id: number) {
-    return this.usersRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Usuario con id ${id} no existe`);
+    }
+
+    return { message: `Usuario ${id} eliminado correctamente` };
   }
 }

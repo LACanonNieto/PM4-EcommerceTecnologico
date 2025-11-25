@@ -29,16 +29,16 @@ let UsersController = class UsersController {
         return this.usersService.getUsers(1, 5);
     }
     getUserById(id) {
-        return this.usersService.getUserById(Number(id));
+        return this.usersService.getUserById(id);
     }
     Create(user) {
         return this.usersService.createUser(user);
     }
     updatetUser(id, user) {
-        return this.usersService.updateUser(+id, user);
+        return this.usersService.updateUser(id, user);
     }
     deleteUser(id) {
-        return this.usersService.deleteUser(+id);
+        return this.usersService.deleteUser(id);
     }
 };
 exports.UsersController = UsersController;
@@ -61,7 +61,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "getUserById", null);
 __decorate([
-    (0, common_1.Post)(':register'),
+    (0, common_1.Post)(':signup'),
     (0, common_1.HttpCode)(201),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),

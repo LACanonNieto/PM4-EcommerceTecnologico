@@ -1,36 +1,24 @@
-import { User, UsersRepository } from './users.repository';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { Users } from './entity/users.entity';
+import { Repository } from 'typeorm';
 export declare class UsersService {
     private readonly usersRepository;
-    constructor(usersRepository: UsersRepository);
-    getUsers(page: number, limit: number): {
-        id: number;
-        email: string;
+    constructor(usersRepository: Repository<Users>);
+    getUsers(page: number, limit: number): Promise<Users[]>;
+    createUser(user: CreateUserDto): Promise<Users>;
+    getUserById(id: string): Promise<{
+        id: string;
         name: string;
-        address: string;
-        phone: string;
-        country?: string | undefined;
-        city?: string | undefined;
-    }[];
-    getUserById(id: number): {
-        id: number;
         email: string;
-        name: string;
+        phone: number;
+        country: string;
         address: string;
-        phone: string;
-        country?: string | undefined;
-        city?: string | undefined;
-    };
-    createUser(user: CreateUserDto): User | null;
-    updateUser(id: number, user: Partial<User>): {
-        id: number;
-        email: string;
-        name: string;
-        password: string;
-        address: string;
-        phone: string;
-        country?: string | undefined;
-        city?: string | undefined;
-    } | null;
-    deleteUser(id: number): number | null;
+        city: string;
+        isAdmin: boolean;
+        order: import("../orders/entities/order.entity").Orders[];
+    }>;
+    updateUser(id: string, data: Partial<Users>): Promise<Users & Partial<Users>>;
+    deleteUser(id: string): Promise<{
+        message: string;
+    }>;
 }

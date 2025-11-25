@@ -3,7 +3,8 @@ export declare class CreateUserDto {
     name: string;
     password: string;
     address: string;
-    phone: string;
-    country?: string | undefined;
-    city?: string | undefined;
+    phone: number;
+    country?: string;
+    city?: string;
+    isAdmin?: boolean;
 }

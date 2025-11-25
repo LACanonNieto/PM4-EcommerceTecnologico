@@ -9,6 +9,7 @@ class CreateUserDto {
     phone;
     country;
     city;
+    isAdmin;
 }
 exports.CreateUserDto = CreateUserDto;
 //# sourceMappingURL=create-user.dto.js.map

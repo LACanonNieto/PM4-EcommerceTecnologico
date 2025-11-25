@@ -11,7 +11,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './users.repository';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 
@@ -32,10 +31,10 @@ export class UsersController {
   @Get(':id')
   @HttpCode(200)
   getUserById(@Param('id') id: string) {
-    return this.usersService.getUserById(Number(id));
+    return this.usersService.getUserById(id);
   }
 
-  @Post(':register')
+  @Post(':signup')
   @HttpCode(201)
   Create(@Body() user: CreateUserDto) {
     return this.usersService.createUser(user);
@@ -43,13 +42,13 @@ export class UsersController {
 
   @Put(':id')
   @HttpCode(200)
-  updatetUser(@Param('id') id: string, @Body() user: Partial<User>) {
-    return this.usersService.updateUser(+id, user);
+  updatetUser(@Param('id') id: string, @Body() user: Partial<CreateUserDto>) {
+    return this.usersService.updateUser(id, user);
   }
 
   @Delete(':id')
   @HttpCode(200)
   deleteUser(@Param('id') id: string) {
-    return this.usersService.deleteUser(+id);
+    return this.usersService.deleteUser(id);
   }
 }
