@@ -90,24 +90,25 @@ export class UsersService {
   }
 
   async deleteUser(id: string) {
-    const result = await this.usersRepository.delete(id);
+    try {
+      const result = await this.usersRepository.delete(id);
 
-    if (result.affected === 0) {
-      throw new NotFoundException(`Usuario con id ${id} no existe`);
-    }
+      if (result.affected === 0) {
+        throw new NotFoundException(`Usuario con id ${id} no existe`);
+      }
 
-    return { message: `Usuario ${id} eliminado correctamente` };
-  }
-  catch(error) {
-    if (error instanceof NotFoundException) {
-      throw error;
+      return { message: `Usuario ${id} eliminado correctamente` };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      // Error de FKey constraint (si hay órdenes asociadas, por ejemplo)
+      if (error.code === '23503') {
+        throw new ConflictException(
+          'No se puede eliminar el usuario porque tiene órdenes asociadas',
+        );
+      }
+      throw new InternalServerErrorException('Error al eliminar el usuario');
     }
-    // Error de FKey constraint (si hay órdenes asociadas, por ejemplo)
-    if (error.code === '23503') {
-      throw new ConflictException(
-        'No se puede eliminar el usuario porque tiene órdenes asociadas',
-      );
-    }
-    throw new InternalServerErrorException('Error al eliminar el usuario');
   }
 }

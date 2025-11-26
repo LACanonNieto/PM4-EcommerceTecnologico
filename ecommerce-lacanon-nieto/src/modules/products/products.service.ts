@@ -136,4 +136,26 @@ export class ProductsService {
       throw new InternalServerErrorException('Error al actualizar el producto');
     }
   }
+  async deleteProduct(id: string) {
+    try {
+      const result = await this.productsRepository.delete(id);
+
+      if (result.affected === 0) {
+        throw new NotFoundException(`Producto con id ${id} no existe`);
+      }
+
+      return { message: `Producto ${id} eliminado correctamente` };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      // Error de FKey constraint (si hay órdenes asociadas, por ejemplo)
+      if (error.code === '23503') {
+        throw new ConflictException(
+          'No se puede eliminar el producto porque tiene órdenes asociadas',
+        );
+      }
+      throw new InternalServerErrorException('Error al eliminar el producto');
+    }
+  }
 }

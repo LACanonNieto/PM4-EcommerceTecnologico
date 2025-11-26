@@ -13,7 +13,7 @@ export const config = {
   password: process.env.DB_PASSWORD,
   entities: ['dist/**/*.entity{ts,.js}'],
   dropSchema: false,
-  synchronize: true,
+  synchronize: false,
   logging: true,
 };
 
