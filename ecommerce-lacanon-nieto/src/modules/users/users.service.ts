@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './entity/users.entity';
@@ -25,29 +30,63 @@ export class UsersService {
   }
 
   async createUser(user: CreateUserDto) {
-    const newUser: Users = this.usersRepository.create(user);
-    return await this.usersRepository.save(newUser);
+    try {
+      const newUser: Users = this.usersRepository.create(user);
+      return await this.usersRepository.save(newUser);
+    } catch (error) {
+      if (error.code === '23505') {
+        //columna debe ser unica 23505 unique violation postgressql
+        throw new ConflictException('El usuario ya existe');
+      }
+      throw new InternalServerErrorException('Error al crear el usuario');
+    }
   }
 
-  async getUserById(id: string) {
-    const user = await this.usersRepository.findOne({
-      where: { id },
-    });
-    if (!user) {
-      throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+  async getUserBy(id: string) {
+    try {
+      const user = await this.usersRepository.findOne({
+        where: { id },
+        relations: {
+          order: true,
+        },
+      });
+      if (!user) {
+        throw new NotFoundException(`Usuario con id ${id} no encontrado`);
+      }
+      const { password, order, ...safeUser } = user;
+      return {
+        ...safeUser,
+        orders: order.map((o) => ({
+          id: o.id,
+          date: o.date,
+        })),
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Error al obtener el usuario');
     }
-    const { password, ...safeUser } = user;
-    return safeUser;
   }
 
   async updateUser(id: string, data: Partial<Users>) {
-    const user = await this.usersRepository.findOne({ where: { id } });
-
-    if (!user) {
-      throw new NotFoundException(`Usuario con id ${id} no existe`);
+    try {
+      const result = await this.usersRepository.update(id, data);
+      // cuantas filas se actualizaron
+      if (result.affected === 0) {
+        throw new NotFoundException(`Usuario con id ${id} no existe`);
+      }
+      //retorno el usuario actualizado
+      return await this.usersRepository.findOne({ where: { id } });
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error.code === '23505') {
+        throw new ConflictException('El usuario ya existe con esos datos');
+      }
+      throw new InternalServerErrorException('Error al actualizar el usuario');
     }
-    const updated = Object.assign(user, data);
-    return await this.usersRepository.save(updated);
   }
 
   async deleteUser(id: string) {
@@ -58,5 +97,17 @@ export class UsersService {
     }
 
     return { message: `Usuario ${id} eliminado correctamente` };
+  }
+  catch(error) {
+    if (error instanceof NotFoundException) {
+      throw error;
+    }
+    // Error de FKey constraint (si hay órdenes asociadas, por ejemplo)
+    if (error.code === '23503') {
+      throw new ConflictException(
+        'No se puede eliminar el usuario porque tiene órdenes asociadas',
+      );
+    }
+    throw new InternalServerErrorException('Error al eliminar el usuario');
   }
 }

@@ -12,11 +12,11 @@ export const config = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   entities: ['dist/**/*.entity{ts,.js}'],
-  dropSchema: true,
+  dropSchema: false,
   synchronize: true,
   logging: true,
 };
 
 export default registerAs('typeorm', () => config);
 
-export const connectionSource = new DataSource(config as DataSourceOptions);
+export const connectionSource = new DataSource(config as DataSourceOptions); // se usa para las migraciones

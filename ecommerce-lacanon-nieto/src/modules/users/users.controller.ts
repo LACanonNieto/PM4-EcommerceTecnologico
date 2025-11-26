@@ -31,7 +31,7 @@ export class UsersController {
   @Get(':id')
   @HttpCode(200)
   getUserById(@Param('id') id: string) {
-    return this.usersService.getUserById(id);
+    return this.usersService.getUserBy(id);
   }
 
   @Post(':signup')

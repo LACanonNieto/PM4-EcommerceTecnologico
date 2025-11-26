@@ -25,4 +25,8 @@ export class CategoriesService {
     this.categoriesRespository.upsert(categories, ['name']);
     return 'Categories Added'; //actualiza o/y crea con esto ya no se duplican los elementos
   }
+
+  // async getCategories(): Promise<Categories[]> {
+  //   return await this.categoriesRespository.find();
+  // }
 }
