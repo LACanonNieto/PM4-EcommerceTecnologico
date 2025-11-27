@@ -14,6 +14,7 @@ export const config = {
   entities: ['dist/**/*.entity{ts,.js}'],
   dropSchema: false,
   synchronize: false,
+  // migrations: ['src/migrations/*{.ts, .js}'],
   logging: true,
 };
 

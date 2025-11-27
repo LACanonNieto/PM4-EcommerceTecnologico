@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -13,6 +14,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -30,11 +32,12 @@ export class UsersController {
 
   @Get(':id')
   @HttpCode(200)
-  getUserById(@Param('id') id: string) {
+  @UseGuards(AuthGuard)
+  getUserById(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.getUserBy(id);
   }
 
-  @Post(':signup')
+  @Post('signup')
   @HttpCode(201)
   Create(@Body() user: CreateUserDto) {
     return this.usersService.createUser(user);
@@ -42,13 +45,18 @@ export class UsersController {
 
   @Put(':id')
   @HttpCode(200)
-  updatetUser(@Param('id') id: string, @Body() user: Partial<CreateUserDto>) {
-    return this.usersService.updateUser(id, user);
+  @UseGuards(AuthGuard)
+  updatetUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.updateUser(id, updateUserDto);
   }
 
   @Delete(':id')
   @HttpCode(200)
-  deleteUser(@Param('id') id: string) {
+  @UseGuards(AuthGuard)
+  deleteUser(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.deleteUser(id);
   }
 }

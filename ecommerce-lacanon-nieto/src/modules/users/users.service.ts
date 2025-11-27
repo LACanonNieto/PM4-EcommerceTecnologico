@@ -8,6 +8,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './entity/users.entity';
 import { Repository } from 'typeorm';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -69,9 +70,9 @@ export class UsersService {
     }
   }
 
-  async updateUser(id: string, data: Partial<Users>) {
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
     try {
-      const result = await this.usersRepository.update(id, data);
+      const result = await this.usersRepository.update(id, updateUserDto);
       // cuantas filas se actualizaron
       if (result.affected === 0) {
         throw new NotFoundException(`Usuario con id ${id} no existe`);

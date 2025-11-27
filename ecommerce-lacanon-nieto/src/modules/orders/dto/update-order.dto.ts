@@ -9,8 +9,6 @@ export enum OrderStatus {
 
 export class UpdateOrderDto {
   @IsOptional()
-  @IsEnum(OrderStatus, {
-    message: 'El estado debe ser: pending, completed, cancelled o shipped',
-  })
+  @IsEnum(OrderStatus)
   status?: string;
 }
