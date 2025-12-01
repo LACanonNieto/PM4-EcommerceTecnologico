@@ -1,6 +1,9 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
+  InternalServerErrorException,
+  PayloadTooLargeException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,35 +11,74 @@ import { Users } from '../users/entity/users.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from '../users/dtos/Login-user.dto';
+import { CreateUserDto } from '../users/dtos/create-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async signin(loginUserDto: LoginUserDto) {
+  getAuth() {
+    return 'Esta es una accion que retorna Auth';
+  }
+
+  async createUser(user: CreateUserDto) {
+    const findUser = await this.usersRepository.findOneBy({
+      email: user.email,
+    });
+    if (findUser) throw new BadRequestException('Credencial Invalida');
+
+    // encriptar contrase;a  de 10 a 20 es lo correcto
+    const hashedPassword = await bcrypt.hash(user.password, 12);
     try {
-      const { email, password } = loginUserDto;
-      // validar que vengasn ambos campos
-      if (!email || !password) {
-        throw new BadRequestException('Email y contraseña requeridas');
-      }
-      //buscar usuario por email
-      const user = await this.usersRepository.findOne({
-        where: { email },
+      const newUser: Users = this.usersRepository.create({
+        ...user,
+        password: hashedPassword,
       });
-      // si no existe el usuario o la contrase;a no es correcta
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-        throw new UnauthorizedException('Email o Password incorrectos');
-      }
-      // retorna el usuario sin la contrase;a
-      const { password: _, ...userWithOutPassword } = user;
+      //creo una constante de la entidad guardada y desde alli desestructuro para poder quitar el password
+      const savedUser = await this.usersRepository.save(newUser);
+
+      const { password: _, ...userWithOutPassword } = savedUser;
       return {
         message: 'Login exitoso',
         user: userWithOutPassword,
       };
+    } catch (error) {
+      if (error.code === '23505') {
+        //columna debe ser unica 23505 unique violation postgressql
+        throw new ConflictException('El usuario ya existe');
+      }
+      throw new InternalServerErrorException('Error al crear el usuario');
+    }
+  }
+
+  async signin(Credentials: LoginUserDto) {
+    const findUser = await this.usersRepository.findOneBy({
+      email: Credentials.email,
+    });
+    if (!findUser) throw new BadRequestException('Credencial Invalida');
+    try {
+      const matchingPasswords = await bcrypt.compare(
+        Credentials.password,
+        findUser.password,
+      );
+
+      if (!matchingPasswords)
+        throw new BadRequestException('Credenciales Invalidas');
+
+      const payload = {
+        id: findUser.id,
+        email: findUser.email,
+        isAdmin: findUser.isAdmin,
+      };
+
+      const token = this.jwtService.sign(payload);
+
+      return { login: true, access_token: token };
     } catch (error) {
       if (
         error instanceof BadRequestException ||
@@ -46,9 +88,5 @@ export class AuthService {
       }
       throw new BadRequestException('Error en el proceso de login');
     }
-  }
-
-  getAuth() {
-    return 'Esta es una accion que retorna Auth';
   }
 }

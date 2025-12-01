@@ -21,7 +21,6 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get('seeder')
-  @UseGuards(AuthGuard)
   seeder() {
     return this.productsService.seeder();
   }
@@ -39,7 +38,6 @@ export class ProductsController {
 
   @Post()
   @HttpCode(201)
-  @UseGuards(AuthGuard)
   CreateProduct(@Body() product: CreateProductDto) {
     return this.productsService.createProduct(product);
   }
@@ -56,7 +54,6 @@ export class ProductsController {
 
   @Delete(':id')
   @HttpCode(200)
-  @UseGuards(AuthGuard)
   deleteProduct(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.deleteProduct(id);
   }

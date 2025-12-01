@@ -4,7 +4,6 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dtos/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './entity/users.entity';
 import { Repository } from 'typeorm';
@@ -27,19 +26,6 @@ export class UsersService {
     } catch (error) {
       console.log(error);
       throw error;
-    }
-  }
-
-  async createUser(user: CreateUserDto) {
-    try {
-      const newUser: Users = this.usersRepository.create(user);
-      return await this.usersRepository.save(newUser);
-    } catch (error) {
-      if (error.code === '23505') {
-        //columna debe ser unica 23505 unique violation postgressql
-        throw new ConflictException('El usuario ya existe');
-      }
-      throw new InternalServerErrorException('Error al crear el usuario');
     }
   }
 

@@ -19,8 +19,6 @@ export class ProductsService {
     private readonly productsRepository: Repository<Products>,
     @InjectRepository(Categories)
     private readonly categoriesRepository: Repository<Categories>,
-    @InjectRepository(Users)
-    private readonly usersRepository: Repository<Users>,
   ) {}
 
   async seeder() {
@@ -84,20 +82,6 @@ export class ProductsService {
       throw new InternalServerErrorException('Error al obtener los productos');
     }
   }
-
-  async createProduct(product: CreateProductDto) {
-    try {
-      const newProduct: Products = this.productsRepository.create(product);
-      return await this.productsRepository.save(newProduct);
-    } catch (error) {
-      if (error.code === '23505') {
-        //columna debe ser unica 23505 unique violation postgressql
-        throw new ConflictException('El producto ya existe');
-      }
-      throw new InternalServerErrorException('Error al crear el producto');
-    }
-  }
-
   async getProductBy(id: string) {
     try {
       const product = await this.productsRepository.findOne({
@@ -117,6 +101,34 @@ export class ProductsService {
       throw new InternalServerErrorException('Error al obtener el producto');
     }
   }
+
+  async createProduct(product: CreateProductDto) {
+    try {
+      const category = await this.categoriesRepository.findOne({
+        where: { id: product.categoryId },
+      });
+      if (!category) {
+        throw new NotFoundException(
+          'Categoria con id ${product.categoryId} no encontrada',
+        );
+      }
+      const newProduct: Products = this.productsRepository.create({
+        ...product,
+        category: category,
+      });
+      return await this.productsRepository.save(newProduct);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error.code === '23505') {
+        //columna debe ser unica 23505 unique violation postgressql
+        throw new ConflictException('El producto ya existe');
+      }
+      throw new InternalServerErrorException('Error al crear el producto');
+    }
+  }
+
   async updateProduct(id: string, data: Partial<Products>) {
     try {
       const result = await this.productsRepository.update(id, data);
