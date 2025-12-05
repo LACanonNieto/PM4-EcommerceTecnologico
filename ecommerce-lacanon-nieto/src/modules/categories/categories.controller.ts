@@ -1,6 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
-import { Categories } from './entities/category.entity';
+import { Role } from 'src/common/enum/roles.enum';
+import { Roles } from 'src/common/decorators/roles.decorators';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -11,13 +16,17 @@ export class CategoriesController {
     return this.categoriesService.seeder();
   }
 
+  @ApiBearerAuth()
   @Get()
   getCategories() {
     return this.categoriesService.getCategories();
   }
 
+  @ApiBearerAuth()
   @Post()
-  addCategories(@Body() categories: { name: string }[]) {
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
+  addCategories(@Body() categories: CreateCategoryDto) {
     return this.categoriesService.addCategories(categories);
   }
 }

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
+import { Role } from '../enum/roles.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -16,10 +17,16 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     const authorization = request.headers.authorization;
-    if (!authorization) return false;
+
+    if (!authorization) {
+      throw new UnauthorizedException('Authorization header missing');
+    }
 
     const token = authorization.split(' ')[1];
-    if (!token) return false;
+
+    if (!token) {
+      throw new UnauthorizedException('Token missing or malformed');
+    }
 
     const secret = process.env.JWT_SECRET;
 
@@ -29,7 +36,13 @@ export class AuthGuard implements CanActivate {
       user.iat = new Date(user.iat * 1000).toLocaleString();
       user.exp = new Date(user.exp * 1000).toLocaleString();
 
-      console.log(user);
+      if (user.isAdmin) {
+        user.roles = [Role.Admin];
+      } else {
+        user.roles = [Role.User];
+      }
+
+      request.user = user;
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException();

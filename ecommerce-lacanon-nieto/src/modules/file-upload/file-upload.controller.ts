@@ -12,15 +12,39 @@ import {
 } from '@nestjs/common';
 import { FileUploadService } from './file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+} from '@nestjs/swagger';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorators';
+import { Role } from 'src/common/enum/roles.enum';
 
 @Controller('file-upload')
 export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService) {}
 
+  @ApiBearerAuth()
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload an image for a product' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @Put(':productId')
-  @UseInterceptors(FileInterceptor('file')) //metadata intercepta lo que recibe y lo guarda temporal en req.file
-  @UseGuards(AuthGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGuard, RolesGuard)
   uploadImage(
     @UploadedFile(
       new ParseFilePipe({
@@ -35,9 +59,9 @@ export class FileUploadController {
         ],
       }),
     )
-    file: Express.Multer.File, //upliadfile lo saca de la metadata y lo guarda como objeto en  multer
-    @Param('productId', ParseUUIDPipe) productId: string, // buscar con decorador el ID
+    file: Express.Multer.File,
+    @Param('productId', ParseUUIDPipe) productId: string,
   ) {
-    return this.fileUploadService.uploadImage(file, productId); //retorna la imagen cargada con id
+    return this.fileUploadService.uploadImage(file, productId);
   }
 }

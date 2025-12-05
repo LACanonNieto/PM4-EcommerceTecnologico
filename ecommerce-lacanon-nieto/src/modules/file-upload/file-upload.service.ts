@@ -13,18 +13,17 @@ export class FileUploadService {
   ) {}
 
   async uploadImage(file: Express.Multer.File, productId: string) {
-    const product = await this.productsRepository.findOneBy({ id: productId }); // buscamos el producto por id
+    const product = await this.productsRepository.findOneBy({ id: productId });
 
     if (!product) {
-      throw new NotFoundException('Product not found'); //si no encuentro el producto
+      throw new NotFoundException('Product not found');
     }
-    const uploadResponse = await this.filesUploadRepository.uploadImage(file); //sube a la nube
+    const uploadResponse = await this.filesUploadRepository.uploadImage(file);
 
     await this.productsRepository.update(productId, {
-      //actualizar el producto con la ID
-      imgUrl: uploadResponse.secure_url, // sustuyo la url de la imagen por con la security url de cloudinary
+      imgUrl: uploadResponse.secure_url,
     });
-    //update solo actualiza y por ello debo usar el metodo find para buscar el producto que actualice para que lo retorne
+
     return await this.productsRepository.findOneBy({ id: productId });
   }
 }

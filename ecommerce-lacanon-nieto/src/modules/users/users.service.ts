@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -58,20 +57,13 @@ export class UsersService {
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
     try {
-      const result = await this.usersRepository.update(id, updateUserDto);
-      // cuantas filas se actualizaron
-      if (result.affected === 0) {
+      const user = await this.usersRepository.findOne({ where: { id } });
+      if (!user) {
         throw new NotFoundException(`Usuario con id ${id} no existe`);
       }
-      //retorno el usuario actualizado
-      return await this.usersRepository.findOne({ where: { id } });
+      await this.usersRepository.update({ id }, updateUserDto);
+      return await this.usersRepository.findOneBy({ id });
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      if (error.code === '23505') {
-        throw new ConflictException('El usuario ya existe con esos datos');
-      }
       throw new InternalServerErrorException('Error al actualizar el usuario');
     }
   }
@@ -83,19 +75,12 @@ export class UsersService {
       if (result.affected === 0) {
         throw new NotFoundException(`Usuario con id ${id} no existe`);
       }
-
       return { message: `Usuario ${id} eliminado correctamente` };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      // Error de FKey constraint (si hay órdenes asociadas, por ejemplo)
-      if (error.code === '23503') {
-        throw new ConflictException(
-          'No se puede eliminar el usuario porque tiene órdenes asociadas',
-        );
-      }
-      throw new InternalServerErrorException('Error al eliminar el usuario');
     }
+    throw new InternalServerErrorException('Error al eliminar el usuario');
   }
 }
