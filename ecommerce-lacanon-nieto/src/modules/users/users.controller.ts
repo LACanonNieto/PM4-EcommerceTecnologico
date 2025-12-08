@@ -16,13 +16,14 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 import { Roles } from 'src/common/decorators/roles.decorators';
 import { Role } from 'src/common/enum/roles.enum';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get All Users for Page select' })
   @Get()
   @HttpCode(200)
   @Roles(Role.Admin)
@@ -35,6 +36,7 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get Users by ID' })
   @Get(':id')
   @HttpCode(200)
   @Roles(Role.Admin)
@@ -44,6 +46,7 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update User' })
   @Put(':id')
   @HttpCode(200)
   @UseGuards(AuthGuard)
@@ -55,6 +58,7 @@ export class UsersController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete User' })
   @Delete(':id')
   @HttpCode(200)
   @UseGuards(AuthGuard)

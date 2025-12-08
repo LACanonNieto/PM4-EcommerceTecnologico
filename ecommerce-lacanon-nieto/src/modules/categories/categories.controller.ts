@@ -4,7 +4,7 @@ import { Role } from 'src/common/enum/roles.enum';
 import { Roles } from 'src/common/decorators/roles.decorators';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { CreateCategoryDto } from './dto/create-category.dto';
 
 @Controller('categories')
@@ -16,13 +16,14 @@ export class CategoriesController {
     return this.categoriesService.seeder();
   }
 
-  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get All Categories' })
   @Get()
   getCategories() {
     return this.categoriesService.getCategories();
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create Category' })
   @Post()
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RolesGuard)

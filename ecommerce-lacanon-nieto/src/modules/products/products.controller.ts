@@ -16,7 +16,7 @@ import { CreateProductDto } from './dtos/create-product.dto';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Role } from 'src/common/enum/roles.enum';
 import { Roles } from 'src/common/decorators/roles.decorators';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UpdateProductDto } from './dtos/Update-product.dto';
 
 @Controller('products')
@@ -27,12 +27,14 @@ export class ProductsController {
   seeder() {
     return this.productsService.seeder();
   }
+  @ApiOperation({ summary: 'Get All products' })
   @Get()
   @HttpCode(200)
   getProducts() {
     return this.productsService.getProducts();
   }
 
+  @ApiOperation({ summary: 'Get products by ID' })
   @Get(':id')
   @HttpCode(200)
   getProductBy(@Param('id', ParseUUIDPipe) id: string) {
@@ -40,6 +42,7 @@ export class ProductsController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create Products' })
   @Post()
   @HttpCode(201)
   @Roles(Role.Admin)
@@ -49,6 +52,7 @@ export class ProductsController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update product' })
   @Put(':id')
   @HttpCode(200)
   @Roles(Role.Admin)
@@ -61,6 +65,7 @@ export class ProductsController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete All products' })
   @Delete(':id')
   @HttpCode(200)
   @Roles(Role.Admin)

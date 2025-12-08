@@ -19,13 +19,6 @@ export class Orders {
   @Column()
   date: Date;
 
-  @Column({
-    type: 'varchar',
-    length: 20,
-    default: 'pending',
-  })
-  status: string;
-
   @ManyToOne(() => Users, (user) => user.order)
   @JoinColumn({ name: 'user_id' })
   user: Users;
