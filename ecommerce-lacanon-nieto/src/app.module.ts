@@ -10,12 +10,14 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { FileUploadModule } from './modules/file-upload/file-upload.module';
 import typeorm from './config/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { SeederModule } from './modules/seeder/seeder.module';
 
 @Module({
   imports: [
     UsersModule,
     ProductsModule,
     AuthModule,
+    SeederModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [typeorm],

@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
@@ -27,11 +28,15 @@ export class ProductsController {
   seeder() {
     return this.productsService.seeder();
   }
+
   @ApiOperation({ summary: 'Get All products' })
   @Get()
   @HttpCode(200)
-  getProducts() {
-    return this.productsService.getProducts();
+  getProducts(@Query('page') page: string, @Query('limit') limit: string) {
+    if (limit && page) {
+      return this.productsService.getProducts(+page, +limit);
+    }
+    return this.productsService.getProducts(1, 5);
   }
 
   @ApiOperation({ summary: 'Get products by ID' })

@@ -93,6 +93,10 @@ export class CreateUserDto {
   @MaxLength(20)
   city?: string;
 
+  @IsNotEmpty()
+  @IsNumber()
+  age: number;
+
   @ApiProperty({
     example: false,
     description: 'Campo asignado por el sistema — no debe ser enviado',

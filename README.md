@@ -57,6 +57,7 @@ CRITERIOS DE ACEPTACION:
 - La orden de compra debe tener un id.
 - Cada producto debe quedar registrado y debe descontarse del stock existente.
 - En la orden de compra solo debe quedar una unidad por producto.
+- Debe tener una relacion con ordenes y productos
 
 **DIAGRAMA ENTIDAD-RELACION**
 https://lucid.app/lucidchart/492ee951-4063-4a22-a4c1-bc9a59fe6716/edit?invitationId=inv_19327512-2ee0-4ed7-943c-7b908426f62d&page=0_0

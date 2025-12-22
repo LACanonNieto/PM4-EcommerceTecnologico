@@ -53,6 +53,11 @@ export class Users {
   city: string;
 
   @Column({
+    type: 'int',
+  })
+  age: number;
+
+  @Column({
     type: 'boolean',
     default: false,
     nullable: true,

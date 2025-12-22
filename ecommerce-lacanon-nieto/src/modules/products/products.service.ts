@@ -66,14 +66,16 @@ export class ProductsService {
     }
   }
 
-  async getProducts() {
+  async getProducts(page: number, limit: number) {
     try {
       const products = await this.productsRepository.find({
         relations: {
           category: true,
         },
       });
-      return products;
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      return products.slice(start, end);
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener los productos');
     }

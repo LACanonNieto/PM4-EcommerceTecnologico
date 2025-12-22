@@ -24,7 +24,7 @@ export class OrdersController {
     return this.ordersService.getOrderBy(id);
   }
 
-  @ApiOperation({ summary: 'Create Order' })
+  @ApiOperation({ summary: 'Create new Order' })
   @ApiBearerAuth()
   @Post()
   @UseGuards(AuthGuard)

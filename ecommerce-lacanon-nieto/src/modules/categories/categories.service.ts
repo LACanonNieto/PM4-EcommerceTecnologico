@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import data from '../../data/data.json';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Categories } from './entities/category.entity.js';
+import { Categories } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 
