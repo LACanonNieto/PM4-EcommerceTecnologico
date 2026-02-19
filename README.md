@@ -1,63 +1,130 @@
-1. **Autenticacion del Usuario:**
-   -Como usuario Y administrador quiero porder registrarme o logearme en la aplicacion.
+# 🛒 PM4 - E-commerce de Productos Tecnológicos
 
-CRITERIOS DE ACEPTACION:
+---
 
-- El usuario debe porder registrarse y crear su cuenta proporcionando la informacion como nombre, email, direccion, username, contraseña, ROLE.
-- El usuario deberia validar que la contraseña tenga cacteres, letras mayusculas o minusculas, numeros y que no sea mayor de 8 items.
-- El Usuario deberia validar que el email tenga el @, .toUpperCase(), y que sea .com.
-- El usuario debe poder logearse con el username y la contraseña.
-- El usuario no podra hacer una compra sin haberse registrado o logeado.
-- Se debe identificar si el usuario es VIP despues de X compras.
-- Se identificar si el rol del usuario Administrador o Usuario.
+## 📖 About
 
-2. **PRODUCTOS A LA VENTA**
+API REST **Backend** para una plataforma de comercio electrónico de productos tecnológicos. Desarrollada con **NestJS** y arquitectura modular, implementando autenticación JWT, gestión de productos, categorías y órdenes, con integración a **Cloudinary** para imágenes y documentación automática con **Swagger**.
 
-- Como usuario quiero poder comprar un producto.
-- como administrador quiero poder ver el stock.
+---
 
-CRITERIOS DE ACEPTACIÓN:
+## 🛠️ Tecnologías Usadas
 
-- El producto deber tener un id unico.
-- El producto debe tener nombre, precio.
-- El producto debe tener descripcion e imagenes del mismo.
-- El usuario solo puede seleccionar una unidad por producto.
+- **NestJS 11 / TypeScript** — Framework progresivo con tipado estático
+- **TypeORM / PostgreSQL** — Base de datos relacional con ORM
+- **JWT (@nestjs/jwt)** — Autenticación basada en tokens
+- **bcrypt** — Encriptación de contraseñas
+- **Cloudinary** — Almacenamiento de imágenes en la nube
+- **class-validator / class-transformer** — Validación y transformación de DTOs
+- **Swagger (@nestjs/swagger)** — Documentación automática de la API
+- **Jest / Supertest** — Testing unitario e integración
+- **ESLint / Prettier** — Calidad y formato de código
 
-- Como administrador debo poder revisar el Stock del producto.
-- Como administrador debo poder actualizar la informacion de los productos
-- Como administrador debo poder agregar imagenes mediante Cloud.
+---
 
-3. **CARRITO DE COMPRAS**
+## ✨ Funcionalidades Principales
 
-- Se debe tener un carrito de compras para que el usuario pueda ver los productos que selecciono
+- 🔐 **Autenticación** — Registro y login con JWT, contraseñas encriptadas con bcrypt
+- 👥 **Usuarios** — CRUD con sistema de roles (admin / usuario)
+- 📦 **Productos** — CRUD con gestión de stock, categoría e imagen
+- 🗂️ **Categorías** — Gestión de categorías con seeder automático desde `data.json`
+- 🛍️ **Órdenes** — Creación de órdenes con detalles por usuario y productos
+- 🖼️ **File Upload** — Subida de imágenes a Cloudinary
+- 📋 **Swagger** — Documentación interactiva disponible en `/api`
+- 🔒 **Guards** — AuthGuard y RolesGuard para proteger endpoints
+- 📝 **Logger Middleware** — Registro de método, ruta y timestamp en cada petición
 
-CRITERIOS DE ACEPTACION:
+---
 
-- El carrito debe contener todos los productos seleccionados.
-- El carrito debe contener los precios de cada producto y el valor total a pagar.
-- El carrito de compra debe confirmar la compra para que pase a ser una orden.
+## 🏗️ Arquitectura
 
-4. **ORDEN DE COMPRA**
+```
+PM4-EcommerceTecnologico/
+└── src/
+    ├── auth/               # Registro, login y JWT
+    ├── users/              # CRUD de usuarios y roles
+    ├── products/           # CRUD de productos con stock e imagen
+    ├── categories/         # Categorías con seeder automático
+    ├── orders/             # Órdenes y detalles de órdenes
+    ├── files/              # Subida de imágenes a Cloudinary
+    ├── middlewares/        # Logger middleware global
+    ├── guards/             # AuthGuard y RolesGuard
+    ├── decorators/         # Custom decorators para roles
+    └── config/             # Configuración de TypeORM y variables de entorno
+```
 
-- Como administrador debo poder ver las ordenes de compra de deteminado usuario.
+- Arquitectura modular: cada módulo tiene su **Controller → Service → Repository → Entity**
+- Validación automática con **ValidationPipe** global y decoradores de class-validator
+- Manejo centralizado de errores con excepciones HTTP de NestJS
 
-CRITERIOS DE ACEPTACION:
+---
 
-- La orden de compra debe tener un id para su identificacion.
-- La orden de compra debe tener el id del usuario para la identificacion.
+## ⚙️ Instalación y Ejecución
 
-- La orden de Compra debe tener fecha y el valor total de la compra.
+### Requisitos previos
+- Node.js instalado
+- PostgreSQL corriendo localmente
+- Cuenta en Cloudinary
 
-5. **DETALLES DE LA COMPRA**
+### 1️⃣ Clonar el repositorio
 
-- La orden de compra debe tener el detallado de los productos seleccionados por el usuario.
+```bash
+git clone https://github.com/LACanonNieto/PM4-EcommerceTecnologico.git
+cd PM4-EcommerceTecnologico
+```
 
-CRITERIOS DE ACEPTACION:
+### 2️⃣ Instalar dependencias
 
-- La orden de compra debe tener un id.
-- Cada producto debe quedar registrado y debe descontarse del stock existente.
-- En la orden de compra solo debe quedar una unidad por producto.
-- Debe tener una relacion con ordenes y productos
+```bash
+npm install
+```
 
-**DIAGRAMA ENTIDAD-RELACION**
-https://lucid.app/lucidchart/492ee951-4063-4a22-a4c1-bc9a59fe6716/edit?invitationId=inv_19327512-2ee0-4ed7-943c-7b908426f62d&page=0_0
+### 3️⃣ Configurar variables de entorno
+
+Crear un archivo `.env` con:
+
+```env
+PORT=3000
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_contraseña
+DB_NAME=nombre_base_de_datos
+JWT_SECRET=tu_secreto_jwt
+CLOUDINARY_CLOUD_NAME=tu_cloud_name
+CLOUDINARY_API_KEY=tu_api_key
+CLOUDINARY_API_SECRET=tu_api_secret
+```
+
+### 4️⃣ Ejecutar
+
+```bash
+# Desarrollo
+npm run start:dev
+
+# Producción
+npm run build
+npm run start:prod
+```
+
+Servidor en: `http://localhost:3000`
+Documentación Swagger en: `http://localhost:3000/api`
+
+---
+
+## 🔗 Endpoints Principales
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `POST` | `/auth/register` | Registro de usuario |
+| `POST` | `/auth/login` | Inicio de sesión |
+| `GET` | `/users` | Todos los usuarios (admin) |
+| `GET` | `/users/:id` | Usuario por ID |
+| `GET` | `/products` | Todos los productos |
+| `POST` | `/products` | Crear producto (admin) |
+| `PUT` | `/products/:id` | Actualizar producto (admin) |
+| `DELETE` | `/products/:id` | Eliminar producto (admin) |
+| `GET` | `/categories` | Todas las categorías |
+| `POST` | `/orders` | Crear orden |
+| `GET` | `/orders/:id` | Detalle de una orden |
+| `POST` | `/files/uploadImage/:id` | Subir imagen de producto |
